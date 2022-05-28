@@ -368,7 +368,39 @@ export const routeModel: Record<Auth.RoleType, AuthRoute.Route[]> = {
         icon: 'fluent:book-information-24-regular',
         order: 8
       }
-    }
+    },
+		{
+			name: 'users',
+			path: '/users',
+			component: 'basic',
+			children: [
+				{
+					name: 'users_profile',
+					path: '/users/profile',
+					component: 'self',
+					meta: {
+						title: '个人信息',
+						requiresAuth: true,
+						icon: 'icon-park-outline:analysis'
+					}
+				},
+				{
+					name: 'users_user',
+					path: '/users/user',
+					component: 'self',
+					meta: {
+						title: '用户管理',
+						requiresAuth: true,
+						icon: 'icon-park-outline:workbench'
+					}
+				}
+			],
+			meta: {
+				title: '用户中心',
+				icon: 'carbon:dashboard',
+				order: 1
+			}
+		},
   ],
   admin: [
     {

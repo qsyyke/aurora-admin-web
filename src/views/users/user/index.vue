@@ -1,13 +1,10 @@
 <template>
-
+  <user-list />
+  <user-add />
+  <user-modify />
 </template>
 
-<script>
-export default {
-	name: "index"
-}
+<script lang="ts" setup>
+import { UserList, UserModify, UserAdd } from '@/views/users/user/index';
 </script>
-
-<style scoped>
-
-</style>
+<style scoped></style>

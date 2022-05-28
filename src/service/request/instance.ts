@@ -63,10 +63,10 @@ export default class CustomAxiosInstance {
         const { status } = response;
         if (status === 200 || status < 300 || status === 304) {
           const backend = response.data;
-          const { codeKey, dataKey, successKey } = this.backendConfig;
+          const { codeKey, successKey } = this.backendConfig;
           // 请求成功
           if (backend[successKey] === true) {
-            return handleServiceResult(null, backend[dataKey]);
+            return handleServiceResult(null, backend);
           }
 
           // token失效, 刷新token
@@ -77,8 +77,11 @@ export default class CustomAxiosInstance {
             }
           }
 
+          // 请求配置
           const error = handleBackendError(backend, this.backendConfig);
-          return handleServiceResult(error, null);
+          console.log('asdfkhasd');
+          console.log(error);
+          return handleServiceResult(error, backend);
         }
         const error = handleResponseError(response);
         return handleServiceResult(error, null);

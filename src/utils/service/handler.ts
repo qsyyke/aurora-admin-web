@@ -1,16 +1,19 @@
 /** 统一失败和成功的请求结果的数据类型 */
 export async function handleServiceResult<T = any>(error: Service.RequestError | null, data: any) {
-	console.log(data)
   if (error) {
-    const fail: Service.FailedResult = {
-      error,
-      data: null
+    const fail: Service.SuccessResult = {
+      data: data.data,
+      code: data.code,
+      message: data.message,
+      success: data.success
     };
     return fail;
   }
   const success: Service.SuccessResult<T> = {
-    error: null,
-    data
+    data: data.data,
+    code: data.code,
+    message: data.message,
+    success: data.success
   };
   return success;
 }

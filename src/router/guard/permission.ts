@@ -10,7 +10,7 @@ export async function createPermissionGuard(
   from: RouteLocationNormalized,
   next: NavigationGuardNext
 ) {
-	console.log("处理路由页面的权限")
+	// console.log("处理路由页面的权限")
   // 动态路由
   const permission = await createDynamicRouteGuard(to, from, next);
   if (!permission) return;

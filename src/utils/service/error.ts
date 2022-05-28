@@ -15,7 +15,7 @@ type ErrorStatus = keyof typeof ERROR_STATUS;
 
 /**
  * 处理axios请求失败的错误
- * @param error - 错误
+ * @param axiosError
  */
 export function handleAxiosError(axiosError: AxiosError) {
   const error: Service.RequestError = {
@@ -86,6 +86,7 @@ export function handleResponseError(response: AxiosResponse) {
 /**
  * 处理后端返回的错误(业务错误)
  * @param backendResult - 后端接口的响应数据
+ * @param config
  */
 export function handleBackendError(backendResult: Record<string, any>, config: Service.BackendResultConfig) {
   const { codeKey, msgKey } = config;

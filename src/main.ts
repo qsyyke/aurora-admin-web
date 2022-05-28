@@ -4,6 +4,7 @@ import { setupStore } from './store';
 import { setupDirectives } from './directives';
 import { setupRouter } from './router';
 import App from './App.vue';
+import api from '~/mock/api';
 
 async function setupApp() {
   // import assets: js、css

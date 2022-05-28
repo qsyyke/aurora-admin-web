@@ -45,13 +45,13 @@ export const useRouteStore = defineStore('route-store', {
   actions: {
     /** 重置路由的store */
     resetRouteStore() {
-			console.log("重置路由的store")
+      // console.log("重置路由的store")
       this.resetRoutes();
       this.$reset();
     },
     /** 重置路由数据，保留固定路由 */
     resetRoutes() {
-			console.log("重置路由数据，保留固定路由")
+      // console.log("重置路由数据，保留固定路由")
       const routes = router.getRoutes();
       const constantRouteNames = getConstantRouteNames(constantRoutes);
       routes.forEach(route => {
@@ -66,7 +66,7 @@ export const useRouteStore = defineStore('route-store', {
      * @param routes - 权限路由
      */
     handleAuthRoutes(routes: AuthRoute.Route[]) {
-			console.log("处理权限路由")
+      // console.log("处理权限路由")
       this.menus = transformAuthRouteToMenu(routes);
       this.searchMenus = transformAuthRoutesToSearchMenus(routes);
       const vueRoutes = transformAuthRoutesToVueRoutes(routes);
@@ -79,11 +79,9 @@ export const useRouteStore = defineStore('route-store', {
     },
     /** 初始化动态路由 */
     async initDynamicRoute() {
-			console.log("初始化动态路由")
+      // console.log("初始化动态路由")
       const { userUid } = getUserInfo();
       const { data } = await fetchUserRoutes(userUid);
-			console.log("-----data")
-			console.log(data)
       if (data) {
         this.routeHomeName = data.home;
         this.handleAuthRoutes(data.routes);
@@ -91,14 +89,14 @@ export const useRouteStore = defineStore('route-store', {
     },
     /** 初始化静态路由 */
     async initStaticRoute() {
-			console.log("初始化静态路由")
+      // console.log("初始化静态路由")
       const auth = useAuthStore();
       const routes = filterAuthRoutesByUserPermission(staticRoutes, auth.userInfo.userRole);
       this.handleAuthRoutes(routes);
     },
     /** 初始化权限路由 */
     async initAuthRoute() {
-			console.log("初始化权限路由")
+      // console.log("初始化权限路由")
       const { initHomeTab } = useTabStore();
       const { userUid } = getUserInfo();
       if (!userUid) return;

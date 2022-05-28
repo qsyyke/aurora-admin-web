@@ -48,7 +48,9 @@ declare namespace AuthRoute {
     | 'multi-menu_first_second'
     | 'multi-menu_first_second-new'
     | 'multi-menu_first_second-new_third'
-    | 'aurora'
+    | 'users'
+    | 'users_profile'
+    | 'users_user'
     | 'about';
 
   /** 路由的path */

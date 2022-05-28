@@ -58,29 +58,37 @@ declare namespace Service {
 
   /** 自定义的请求成功结果 */
   interface SuccessResult<T = any> {
+    /** 响应码 */
     code: number;
+    /** 返回的数据信息 */
     data: T;
+    /** 返回的消息 */
     message: string;
+    /** 此操作是否成功 */
     success: boolean;
   }
 
-  /** 自定义的请求失败结果 */
-  interface FailedResult {
-    code: number;
-    data: T;
-    message: string;
-    success: boolean;
+  interface ListResult<T = any> {
+    /**
+     * 总数
+     */
+    total: number;
+    /**
+     * 总页数
+     */
+    pages: number;
+    /**
+     * 返回的数据集合
+     */
+    result: Array<T>;
   }
-
-  /** 自定义的请求结果 */
-  type RequestResult<T = any> = SuccessResult<T> | FailedResult;
 
   /** mock示例接口类型：后端接口返回的数据的类型 */
   interface MockServiceResult<T = any> {
-    code: number;
+    /** 请求错误 */
+    error: null;
+    /** 请求数据 */
     data: T;
-    message: string;
-    success: boolean;
   }
 
   /** mock的响应option */
@@ -127,6 +135,7 @@ declare namespace Theme {
     /** 页面样式 */
     page: Page;
   }
+
   /** 布局样式 */
   interface Layout {
     /** 最小宽度 */
@@ -136,6 +145,7 @@ declare namespace Theme {
     /** 布局模式列表 */
     modeList: LayoutModeList[];
   }
+
   interface LayoutModeList {
     value: EnumType.ThemeLayoutMode;
     label: import('@/enum').EnumThemeLayoutMode;
@@ -162,6 +172,7 @@ declare namespace Theme {
     /** 面包屑样式 */
     crumb: Crumb;
   }
+
   /** 面包屑样式 */
   interface Crumb {
     /** 面包屑可见 */
@@ -213,6 +224,7 @@ declare namespace Theme {
     /** 水平模式的菜单的位置列表 */
     horizontalPositionList: HorizontalMenuPositionList[];
   }
+
   /** 水平模式的菜单的位置列表 */
   interface HorizontalMenuPositionList {
     value: EnumType.ThemeHorizontalMenuPosition;
@@ -236,6 +248,7 @@ declare namespace Theme {
     /** 动画类型列表 */
     animateModeList: AnimateModeList[];
   }
+
   /** 动画类型列表 */
   interface AnimateModeList {
     value: EnumType.ThemeAnimateMode;
