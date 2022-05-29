@@ -31,7 +31,9 @@
               </n-tag>
             </td>
             <td>{{ item.siteUid }}</td>
-            <td>{{ getUserEmail(item.emailUid) }}</td>
+            <td>
+              {{ item.email === undefined ? '加载中...' : item.email.email }}
+            </td>
             <td>
               <n-tag :type="item.verifyEmail ? 'success' : 'error'">
                 {{ item.verifyEmail ? '已绑定' : '未绑定' }}
@@ -48,9 +50,6 @@
                   删除{{ item.username }}么?
                 </n-popconfirm>
                 <n-button @click="clickModifyUserInfo(item)">编辑</n-button>
-                <n-dropdown :options="obj.options">
-                  <n-button>用户资料</n-button>
-                </n-dropdown>
               </n-space>
             </td>
           </tr>
@@ -70,11 +69,11 @@
         />
       </template>
       <template #header-extra>
-        <div>这是头部额外区域</div>
+        <n-space> </n-space>
       </template>
       <template #header>
         <n-space>
-          <n-button strong secondary tertiary round type="success" @click="addUser"> 添加用户</n-button>
+          <n-button strong secondary tertiary round type="success" @click="addUserInfo"> 添加用户</n-button>
         </n-space>
       </template>
     </n-card>
@@ -82,7 +81,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, computed } from 'vue';
+import { defineComponent, reactive, computed, onMounted } from 'vue';
 import { useMessage } from 'naive-ui';
 import {
   fetchAllUser,
@@ -111,21 +110,7 @@ export default defineComponent({
       pageCount: 0,
       userDataArr: new Array<User>(),
       currentUser: new User(),
-      options: [
-        {
-          label: '用户资料',
-          key: 'profile'
-        },
-        {
-          label: '编辑用户资料',
-          key: 'editProfile'
-        },
-        {
-          label: '退出登录',
-          key: 'logout'
-        }
-      ],
-      condition: new Condition()
+      condition: new Condition(false, true, true)
     });
 
     async function loadEmailByUid(emailUid: string): Email {
@@ -134,67 +119,85 @@ export default defineComponent({
     }
 
     // 数据
-    const getUserEmail = computed(() => {
-      return (emailUid: string) => {
-        if (emailUid !== null && emailUid !== undefined) {
-          const { email } = loadEmailByUid(emailUid);
-          return email === undefined ? '无效uid' : email;
+    // 方法
+    const loadUserData = () => {
+      fetchAllUser(obj.condition).then(data => {
+        // 设置第一个用户对象
+        if (data.data.result.length > 0) {
+          const user = data.data.result[0];
+          obj.currentUser = user;
         }
-        return '未绑定';
-      };
+
+        if (data.success) {
+          obj.pageTotal = data.data.total;
+          obj.userDataArr = data.data.result;
+
+          obj.userDataArr
+            .filter(value => {
+              if (value.emailUid !== undefined && value.emailUid !== null) {
+                return true;
+              }
+              return false;
+            })
+            .filter(value => {
+              return fetchEmailByUid(value.emailUid).then(data => {
+                value.email = data.data;
+              });
+            });
+        }
+      });
+    };
+    const handleDeleteUserClick = (userUid: string, username: string) => {
+      deleteUserByUserUid<Service.SuccessResult>(userUid).then(data => {
+        if (data.success) {
+          // 重新加载用户数据
+          loadUserData();
+          message.success(`成功删除 ${username} 用户`);
+        }
+      });
+    };
+    const changePageSize = (pageSize: number) => {
+      obj.condition.pageSize = pageSize;
+      loadUserData();
+    };
+    const changeCurrentPage = (page: number) => {
+      obj.condition.pageNum = page;
+      // 重新加载数据
+      loadUserData();
+    };
+    const clickModifyUserInfo = (userInfo: User) => {
+      obj.currentUser = userInfo;
+      emitter.emit('clickModifyUserInfo', {
+        updateUserInfo: true,
+        currentUserInfo: userInfo
+      });
+    };
+    const addUserInfo = () => {
+      emitter.emit('clickModifyUserInfo', {
+        updateUserInfo: false,
+        currentUserInfo: new User()
+      });
+    };
+
+    onMounted(() => {
+      emitter.on('reloadUserData', e => {
+        loadUserData();
+      });
     });
+
     return {
       obj,
-      getUserEmail,
-      loadUserData() {
-        fetchAllUser(obj.condition).then(data => {
-          // 设置第一个用户对象
-          if (data.data.result.length > 0) {
-            const user = data.data.result[0];
-            obj.currentUser = user;
-          }
-
-          if (data.success) {
-            obj.pageTotal = data.data.total;
-            obj.userDataArr = data.data.result;
-          }
-        });
-      },
-      handleDeleteUserClick(userUid: string, username: string) {
-        deleteUserByUserUid<Service.SuccessResult>(userUid).then(data => {
-          if (data.success) {
-            // 重新加载用户数据
-            this.loadUserData();
-            message.success(`成功删除 ${username} 用户`);
-          }
-        });
-      },
-
-      changePageSize(pageSize: number) {
-        obj.condition.pageSize = pageSize;
-        this.loadUserData();
-      },
-      changeCurrentPage(page: number) {
-        obj.condition.pageNum = page;
-        // 重新加载数据
-        this.loadUserData();
-      },
-      clickModifyUserInfo(userInfo: User) {
-        obj.currentUser = userInfo;
-        emitter.emit('clickModifyUserInfo', {
-          updateUserInfo: true,
-          currentUserInfo: userInfo
-        });
-      },
-      addUser() {
-        emitter.emit('clickModifyUserInfo', {
-          updateUserInfo: false,
-          currentUserInfo: new User()
-        });
-      }
+      handleDeleteUserClick,
+      loadUserData,
+      changePageSize,
+      changeCurrentPage,
+      clickModifyUserInfo,
+      addUserInfo
     };
   },
   created() {
+    this.obj.condition.delete = false;
+    this.obj.condition.pageSize = 10;
     this.loadUserData();
   }
 });

@@ -7,7 +7,7 @@ import { createPermissionGuard } from './permission';
  * @param router - 路由实例
  */
 export function createRouterGuard(router: Router) {
-	// console.log("执行了")
+  // console.log("执行了")
   router.beforeEach(async (to, from, next) => {
     // 开始 loadingBar
     window.$loadingBar?.start();

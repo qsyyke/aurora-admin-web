@@ -189,7 +189,6 @@ async function getRequestResponse(
 ) {
   let res: any;
   if (method === 'get' || method === 'delete') {
-    config = config === undefined ? { params: data } : config;
     res = await instance[method](url, config);
   } else {
     res = await instance[method](url, data, config);

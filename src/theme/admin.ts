@@ -14,17 +14,19 @@ export class User {
   /**
    * 账户是否被锁住
    */
-  accountLock?: boolean;
+  accountLock?: boolean | null;
 
   /**
    * 是否验证了邮箱
    */
-  verifyEmail?: boolean;
+  verifyEmail?: boolean | null;
 
   /**
    * 用户昵称
    */
   nickname?: string | null;
+
+  password?: string | null;
 
   /**
    * 用户性别

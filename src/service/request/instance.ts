@@ -1,6 +1,7 @@
 import axios from 'axios';
 import type { AxiosRequestConfig, AxiosInstance, AxiosError } from 'axios';
 import { REFRESH_TOKEN_CODE } from '@/config';
+import { EnumContentType } from '@/enum';
 import {
   getToken,
   transformRequestData,

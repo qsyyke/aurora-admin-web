@@ -2,7 +2,7 @@ import { Condition, User } from '@/theme';
 import { request } from '../request';
 
 export function fetchAllUser(condition: Condition) {
-  return request.get<Service.ListResult<User>>('/admin/user', condition);
+  return request.get<Service.ListResult<User>>('/admin/user', condition, { params: condition });
 }
 
 export function fetchUserByUserUid(userUid: string) {

@@ -94,7 +94,7 @@ export const useAuthStore = defineStore('auth-store', {
       // 获取用户信息
       const userInfo = getUserInfoFromJwt(backendToken);
       /** 返回的用户信息 */
-			// eslint-disable-next-line camelcase
+      // eslint-disable-next-line camelcase
       if (access_token) {
         // 成功后把用户信息存储到缓存中
         setUserInfo(userInfo);
@@ -115,7 +115,7 @@ export const useAuthStore = defineStore('auth-store', {
      */
     async login(username: string, password: string) {
       this.loginLoading = true;
-			const { data } = await fetchLogin(username, password);
+      const { data } = await fetchLogin(username, password);
       if (data) {
         await this.handleActionAfterLogin(data);
       }

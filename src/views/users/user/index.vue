@@ -1,7 +1,9 @@
 <template>
-  <user-list />
-  <user-add />
-  <user-modify />
+  <div>
+    <user-list />
+    <user-add />
+    <user-modify />
+  </div>
 </template>
 
 <script lang="ts" setup>

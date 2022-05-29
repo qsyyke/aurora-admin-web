@@ -12,15 +12,16 @@ export async function transformRequestData(requestData: any, contentType?: strin
   // application/json类型不处理
   let data = requestData;
   // form类型转换
-  if (contentType === EnumContentType.formUrlencoded) {
-    data = qs.stringify(requestData);
-  }
-  // form-data类型转换
-  if (contentType === EnumContentType.formData) {
-    const key = Object.keys(requestData)[0];
-    const file = requestData.data[key];
-    data = await transformFile(file, key);
-  }
+  // if (contentType === EnumContentType.formUrlencoded) {
+  //   data = qs.stringify(requestData);
+  // }
+  // // form-data类型转换
+  // if (contentType === EnumContentType.formData) {
+  //   const key = Object.keys(requestData)[0];
+  //   const file = requestData.data[key];
+  //   data = await transformFile(file, key);
+  // }
+  data = qs.stringify(requestData);
   return data;
 }
 

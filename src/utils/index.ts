@@ -5,3 +5,4 @@ export * from './auth';
 export * from './router';
 export * from './form';
 export * from './mitt';
+export * from './date';
