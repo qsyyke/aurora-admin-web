@@ -15,7 +15,7 @@ export function updateEmailByUid(email: Email) {
 }
 
 export function fetchAllEmail(condition: Condition) {
-  return request.get<Service.ListResult<Email>>('/message/email', condition);
+  return request.get<Service.ListResult<Email>>('/message/email', condition, { params: condition });
 }
 
 export async function fetchEmailByUid(emailUid: string) {

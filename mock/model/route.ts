@@ -402,6 +402,38 @@ export const routeModel: Record<Auth.RoleType, AuthRoute.Route[]> = {
       }
     },
     {
+      name: 'auth',
+      path: '/auth',
+      component: 'basic',
+      children: [
+        {
+          name: 'auth_login',
+          path: '/auth/login',
+          component: 'self',
+          meta: {
+            title: '登录日志',
+            requiresAuth: true,
+            icon: 'icon-park-outline:analysis'
+          }
+        },
+        {
+          name: 'auth_oauth-client',
+          path: '/auth/oauth-client',
+          component: 'self',
+          meta: {
+            title: '客户端秘钥',
+            requiresAuth: true,
+            icon: 'icon-park-outline:workbench'
+          }
+        }
+      ],
+      meta: {
+        title: '认证中心',
+        icon: 'carbon:dashboard',
+        order: 1
+      }
+    },
+    {
       name: 'message',
       path: '/message',
       component: 'basic',

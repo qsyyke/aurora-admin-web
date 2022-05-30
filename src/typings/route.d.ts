@@ -56,6 +56,9 @@ declare namespace AuthRoute {
     | 'message_email-log'
     | 'message_mail'
     | 'message_message-log'
+    | 'auth'
+    | 'auth_login'
+    | 'auth_oauth-client'
     | 'about';
 
   /** 路由的path */
