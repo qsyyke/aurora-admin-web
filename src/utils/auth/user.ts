@@ -1,6 +1,8 @@
 import { EnumStorageKey } from '@/enum';
+import { fetchUserByUserUid } from '@/service';
 import { User } from '@/theme';
 import { Email } from '@/theme/message';
+import { fetchEmailByUserUid } from '@/service/api/message/email';
 import { getLocal, removeLocal, setLocal } from '../storage';
 
 /** 设置token */
@@ -43,8 +45,7 @@ export function getAuthUserInfo() {
     verifyEmail: false,
     roleArr: null
   };
-  const userInfo: Auth.UserInfo = getLocal<Auth.UserInfo>(EnumStorageKey['auth_user-info']) || emptyInfo;
-  return userInfo;
+  return getLocal<Auth.UserInfo>(EnumStorageKey['auth_user-info']) || emptyInfo;
 }
 
 /** 设置用户信息 */
@@ -58,9 +59,9 @@ export function removeAuthUserInfo() {
 }
 
 /** 获取用户信息 */
-export function getUserInfo() {
+export function getUserInfoFromStorage() {
   const emptyInfo: User = new User();
-  const userInfo: User = getLocal<User>(EnumStorageKey['auth_user-info']) || emptyInfo;
+  const userInfo: User = getLocal<User>(EnumStorageKey['user-info']) || emptyInfo;
   if (!userInfo.email) {
     userInfo.email = new Email();
   }
@@ -83,6 +84,24 @@ export function clearAuthStorage() {
   removeRefreshToken();
   removeAuthUserInfo();
   removeUserInfo();
+}
+
+export function loadUserInfo(userUid: string) {
+  // 获取用户的信息
+  return fetchUserByUserUid(userUid).then(data => {
+    if (data.success) {
+      const userInfo = data.data;
+      setUserInfo(data.data);
+
+      // 获取用户邮箱信息，可能服务没有启动
+      fetchEmailByUserUid(userUid).then(res => {
+        if (res.success) {
+          userInfo.email = res.data;
+          setUserInfo(userInfo);
+        }
+      });
+    }
+  });
 }
 
 class AuthUser implements Auth.UserInfo {

@@ -51,6 +51,11 @@ declare namespace AuthRoute {
     | 'users'
     | 'users_profile'
     | 'users_user'
+    | 'message'
+    | 'message_email'
+    | 'message_email-log'
+    | 'message_mail'
+    | 'message_message-log'
     | 'about';
 
   /** 路由的path */

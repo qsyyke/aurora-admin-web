@@ -94,7 +94,7 @@ import {
   fetchUserByUsernameContainPassword,
   fetchUserByUserUid
 } from '@/service';
-import { fetchEmailByUid } from '@/service/api/email';
+import { fetchEmailByUid } from '@/service/api/message/email';
 import { Condition, User } from '@/theme';
 import emitter from '@/utils/mitt';
 import { Email } from '@/theme/message';

@@ -118,7 +118,9 @@
 <script lang="ts" setup>
 import { ref, onMounted, reactive, computed, watch } from 'vue';
 import { useMessage, FormInst, FormItemInst, FormItemRule, FormRules } from 'naive-ui';
+import { useAuthStore } from '@/store';
 import { bindEmailForUser, updateUser, addUser } from '@/service';
+import { getUserInfo, setUserInfo } from '@/utils';
 import emitter from '@/utils/mitt';
 import { User } from '@/theme';
 import { Email } from '@/theme/message';
@@ -126,6 +128,7 @@ import { Email } from '@/theme/message';
 const formRef = ref<FormInst | null>(null);
 const rPasswordFormItemRef = ref<FormItemInst | null>(null);
 const message = useMessage();
+const auth = useAuthStore();
 
 const obj = reactive({
   showDrawer: false,
@@ -194,6 +197,11 @@ const handleValidateButtonClick = (e: MouseEvent) => {
             // 修改成功
             message.success(`修改 ${obj.currentUserInfo.username} 成功`);
             reloadDataStatus.value = true;
+
+            // 如果修改的用户信息就是当前登录用户，则重新存储用户信息
+            if (auth.getUserInfo.uid === obj.currentUserInfo.uid) {
+              auth.updateUserinfo();
+            }
           }
         });
       }
@@ -245,6 +253,10 @@ const handleBindEmail = (value: boolean) => {
         obj.bindEmailLoadingStatus = false;
         obj.currentUserInfo.verifyEmail = value;
         message.success('请至邮箱中点击链接绑定');
+
+        if (auth.getUserInfo.uid === obj.currentUserInfo.uid) {
+          auth.updateUserinfo();
+        }
       }
     })
     .catch(e => {

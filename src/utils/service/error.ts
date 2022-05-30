@@ -40,6 +40,13 @@ export function handleAxiosError(axiosError: AxiosError) {
       }
     ],
     [
+      // 后盾401认证失败
+      axiosError.message === 'Request failed with status code 401',
+      () => {
+        Object.assign(error, { code: 401, msg: axiosError.response?.data.message });
+      }
+    ],
+    [
       // 超时错误
       axiosError.code === REQUEST_TIMEOUT_CODE && axiosError.message.includes('timeout'),
       () => {

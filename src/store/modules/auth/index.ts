@@ -12,10 +12,13 @@ import {
   getUserInfoFromJwt,
   clearAuthStorage,
   getUserInfo,
-  setUserInfo
+  setUserInfo,
+  loadUserInfo,
+  getUserInfoFromStorage
 } from '@/utils';
 import { User } from '@/theme';
-import { fetchEmailByUserUid } from '@/service/api/email';
+import { fetchEmailByUserUid } from '@/service/api/message/email';
+import { Email } from '@/theme/message';
 import { useTabStore } from '../tab';
 import { useRouteStore } from '../route';
 
@@ -34,7 +37,7 @@ export const useAuthStore = defineStore('auth-store', {
     authUserInfo: getAuthUserInfo(),
     token: getToken(),
     loginLoading: false,
-    userInfo: getUserInfo()
+    userInfo: getUserInfoFromStorage()
   }),
   getters: {
     /** 是否登录 */
@@ -49,6 +52,32 @@ export const useAuthStore = defineStore('auth-store', {
     }
   },
   actions: {
+    /** 重新设置用户的信息 */
+    setUserInfo(userInfo: User) {
+      if (!userInfo) {
+        return;
+      }
+
+      const emailInfo = this.userInfo.email;
+      userInfo.email = emailInfo;
+      setUserInfo(userInfo);
+    },
+
+    /** 更新用户的邮箱信息 */
+    setUserEmailInfo(emailInfo: Email) {
+      if (!emailInfo) {
+        return;
+      }
+
+      this.userInfo.email = emailInfo;
+      setUserInfo(this.userInfo);
+    },
+    /** 更新用户的信息，从数据库中查询用户信息 */
+    updateUserinfo() {
+      loadUserInfo(this.authUserInfo.userUid).then(data => {
+        this.userInfo = getUserInfoFromStorage();
+      });
+    },
     /** 重置auth状态 */
     resetAuthStore() {
       console.log('重置auth状态');
@@ -116,21 +145,8 @@ export const useAuthStore = defineStore('auth-store', {
         this.token = access_token;
 
         successFlag = true;
-
-        // 获取用户的信息
-        fetchUserByUserUid(this.authUserInfo.userUid).then(data => {
-          if (data.success) {
-            this.userInfo = data.data;
-            setUserInfo(data.data);
-
-            // 获取用户邮箱信息，可能服务没有启动
-            fetchEmailByUserUid(this.userInfo.uid).then(res => {
-              if (res.success) {
-                this.userInfo.email = res.data;
-                setUserInfo(this.userInfo);
-              }
-            });
-          }
+        loadUserInfo(this.authUserInfo.userUid).then(data => {
+          this.userInfo = getUserInfoFromStorage();
         });
       }
 

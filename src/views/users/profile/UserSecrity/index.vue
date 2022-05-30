@@ -6,17 +6,17 @@
           <n-space vertical :size="28">
             <n-space vertical :size="14">
               <n-text> 旧密码 </n-text>
-              <n-input v-model:value="obj.originPwd" :minlength="4" :maxlength="15" round placeholder="username" />
+              <n-input v-model:value="obj.originPwd" :minlength="4" :maxlength="15" round placeholder="旧密码" />
             </n-space>
 
             <n-space vertical :size="14">
               <n-text> 新密码 </n-text>
-              <n-input v-model:value="obj.newPwd" :minlength="4" :maxlength="15" round placeholder="nickname" />
+              <n-input v-model:value="obj.newPwd" :minlength="4" :maxlength="15" round placeholder="新密码" />
             </n-space>
 
             <n-space vertical :size="14">
               <n-text> 重复密码 </n-text>
-              <n-input v-model:value="obj.repeatPwd" :minlength="4" :maxlength="15" round placeholder="nickname" />
+              <n-input v-model:value="obj.repeatPwd" :minlength="4" :maxlength="15" round placeholder="重复密码" />
             </n-space>
 
             <n-row :gutter="[0, 24]">
@@ -72,16 +72,17 @@ import { useMessage, useLoadingBar } from 'naive-ui';
 import { REGEXP_EMAIL } from '@/config';
 import { useAuthStore } from '@/store';
 import { bindEmailForUser, updateUserPassword } from '@/service';
-import { insertEmail } from '@/service/api/email';
+import { insertEmail } from '@/service/api/message/email';
 import { Email } from '@/theme/message';
 
+const auth = useAuthStore();
 const message = useMessage();
 const loadBar = useLoadingBar();
 const obj = reactive({
   originPwd: '',
   newPwd: '',
   repeatPwd: '',
-  authUserInfo: useAuthStore().getUserInfo,
+  authUserInfo: auth.getUserInfo,
   addEmail: false,
   userEmail: ''
 });
@@ -100,8 +101,12 @@ const updatePassword = () => {
   }
 
   // 修改密码
-  updateUserPassword(obj.authUserInfo.username, obj.originPwd, obj.newPwd).then(data => {
-    message.success('修改密码成功');
+  updateUserPassword(obj.authUserInfo.username as string, obj.originPwd, obj.newPwd).then(data => {
+    if (data.success) {
+      message.success('修改密码成功');
+      // 更新用户的信息
+      auth.updateUserinfo();
+    }
   });
 };
 

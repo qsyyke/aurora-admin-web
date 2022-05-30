@@ -1,6 +1,6 @@
 import { Condition } from '@/theme';
 import { Email } from '@/theme/message';
-import { request } from '../request';
+import { request } from '../../request';
 
 export function insertEmail(email: Email) {
   return request.post('/message/email', email);

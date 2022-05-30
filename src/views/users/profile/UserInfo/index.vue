@@ -88,7 +88,7 @@
         <n-space vertical :size="14">
           <n-text> 昵称 </n-text>
           <n-input
-            v-model:value="authUser.userInfo.email.email"
+            v-model:value="authUser.userInfo.nickname"
             :minlength="4"
             :maxlength="15"
             round
@@ -131,14 +131,11 @@
 </template>
 
 <script lang="ts">
-import { computed, reactive, defineComponent, watch } from 'vue';
-import { NP, UploadCustomRequestOptions, useMessage } from 'naive-ui';
+import { reactive, defineComponent } from 'vue';
+import { NP, useMessage } from 'naive-ui';
 import { useAuthStore } from '@/store';
-import { fetchUserByUserUid, updateUser, uploadSingleFile } from '@/service';
+import { updateUser, uploadSingleFile } from '@/service';
 import { User } from '@/theme';
-import { File } from '@/theme/file';
-import { fetchEmailByUserUid } from '@/service/api/email';
-import { Email } from '@/theme/message';
 
 export default defineComponent({
   setup() {
@@ -146,30 +143,8 @@ export default defineComponent({
     const userAuthStore = useAuthStore();
     const obj = reactive({
       currentUserInfo: new User(),
-      authUserInfo: userAuthStore.getUserInfo
+      authUserInfo: userAuthStore.getAuthUserInfo
     });
-
-    // 获取用户信息
-    const loadUserInfo = () => {
-      if (obj.authUserInfo.userUid === null || obj.authUserInfo.userUid === undefined) {
-        message.error('你尚未登录');
-        return;
-      }
-
-      // 获取用户信息
-      fetchUserByUserUid(obj.authUserInfo.userUid).then(data => {
-        if (data.success) {
-          obj.currentUserInfo = data.data;
-
-          // 获取用户邮箱
-          fetchEmailByUserUid(obj.authUserInfo.userUid).then(res => {
-            if (res.success) {
-              obj.currentUserInfo.email = res.data;
-            }
-          });
-        }
-      });
-    };
 
     const handleSaveUserInfo = () => {
       // 保存用户信息
@@ -182,15 +157,22 @@ export default defineComponent({
       updateUser(obj.currentUserInfo).then(data => {
         if (data.success) {
           message.success('修改信息成功');
-          loadUserInfo();
+
+          // 重新存储用户信息
+          userAuthStore.updateUserinfo();
         }
       });
     };
 
+    const loadUserInfo = () => {
+      obj.currentUserInfo = userAuthStore.getUserInfo;
+    };
+
     return {
       obj,
-      authUser: useAuthStore(),
+      NP,
       loadUserInfo,
+      authUser: useAuthStore(),
       handleSaveUserInfo,
       uploadAvatarFailure(options) {
         message.error('上传头像失败');

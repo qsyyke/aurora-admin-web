@@ -400,6 +400,58 @@ export const routeModel: Record<Auth.RoleType, AuthRoute.Route[]> = {
         icon: 'carbon:dashboard',
         order: 1
       }
+    },
+    {
+      name: 'message',
+      path: '/message',
+      component: 'basic',
+      children: [
+        {
+          name: 'message_email',
+          path: '/message/email',
+          component: 'self',
+          meta: {
+            title: '邮箱管理',
+            requiresAuth: true,
+            icon: 'icon-park-outline:analysis'
+          }
+        },
+        {
+          name: 'message_email-log',
+          path: '/message/email-log',
+          component: 'self',
+          meta: {
+            title: '邮件发送记录',
+            requiresAuth: true,
+            icon: 'icon-park-outline:workbench'
+          }
+        },
+        {
+          name: 'message_mail',
+          path: '/message/mail',
+          component: 'self',
+          meta: {
+            title: '发送邮件',
+            requiresAuth: true,
+            icon: 'icon-park-outline:workbench'
+          }
+        },
+        {
+          name: 'message_message-log',
+          path: '/message/message-log',
+          component: 'self',
+          meta: {
+            title: '消息中间件消息',
+            requiresAuth: true,
+            icon: 'icon-park-outline:workbench'
+          }
+        }
+      ],
+      meta: {
+        title: '消息',
+        icon: 'carbon:dashboard',
+        order: 1
+      }
     }
   ],
   admin: [
@@ -872,18 +924,6 @@ export const routeModel: Record<Auth.RoleType, AuthRoute.Route[]> = {
         singleLayout: 'basic',
         icon: 'fluent:book-information-24-regular',
         order: 8
-      }
-    },
-    {
-      name: 'aurora',
-      path: '/aurora',
-      component: 'self',
-      meta: {
-        title: 'aurora主题',
-        requiresAuth: true,
-        singleLayout: 'basic',
-        icon: 'fluent:accessibility-20-filled',
-        order: 9
       }
     }
   ]
