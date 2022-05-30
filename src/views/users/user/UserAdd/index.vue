@@ -120,7 +120,6 @@ import { ref, onMounted, reactive, computed, watch } from 'vue';
 import { useMessage, FormInst, FormItemInst, FormItemRule, FormRules } from 'naive-ui';
 import { useAuthStore } from '@/store';
 import { bindEmailForUser, updateUser, addUser } from '@/service';
-import { getUserInfo, setUserInfo } from '@/utils';
 import emitter from '@/utils/mitt';
 import { User } from '@/theme';
 import { Email } from '@/theme/message';

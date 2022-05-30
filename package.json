@@ -37,6 +37,7 @@
 		"dayjs": "^1.11.2",
 		"echarts": "^5.3.2",
 		"form-data": "^4.0.0",
+		"highlight": "^0.2.4",
 		"less": "^4.1.2",
 		"lodash-es": "^4.17.21",
 		"naive-ui": "^2.29.0",

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <n-card class="h-full shadow-sm rounded-16px">
     <n-drawer v-model:show="obj.showDrawer" width="calc(45vw)" placement="right">
       <n-drawer-content :title="obj.currentEmailLog.subject">
         <n-card :bordered="false">
@@ -34,7 +34,7 @@
         </n-col>
       </n-row>
     </n-space>
-  </div>
+  </n-card>
 </template>
 
 <script lang="ts" setup>
