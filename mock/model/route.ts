@@ -434,6 +434,38 @@ export const routeModel: Record<Auth.RoleType, AuthRoute.Route[]> = {
       }
     },
     {
+      name: 'file',
+      path: '/file',
+      component: 'basic',
+      children: [
+        {
+          name: 'file_picture',
+          path: '/file/picture',
+          component: 'self',
+          meta: {
+            title: '图片',
+            requiresAuth: true,
+            icon: 'icon-park-outline:analysis'
+          }
+        },
+        {
+          name: 'file_other-file',
+          path: '/file/other-file',
+          component: 'self',
+          meta: {
+            title: '其他文件',
+            requiresAuth: true,
+            icon: 'icon-park-outline:workbench'
+          }
+        }
+      ],
+      meta: {
+        title: '文件',
+        icon: 'carbon:dashboard',
+        order: 1
+      }
+    },
+    {
       name: 'message',
       path: '/message',
       component: 'basic',

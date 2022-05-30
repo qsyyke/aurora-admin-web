@@ -26,9 +26,18 @@
               </n-tag>
             </td>
             <td>
-              <n-tag :type="!item.accountLock ? 'success' : 'error'">
-                {{ item.accountLock ? '被锁住' : '正常' }}
-              </n-tag>
+              <!--<n-tag :type="!item.accountLock ? 'success' : 'error'">-->
+              <!--  {{ item.accountLock ? '被锁住' : '正常' }}-->
+              <!--</n-tag>-->
+              <n-switch
+                v-model:value="item.accountLock"
+                :rail-style="railStyle"
+                @click="clickSwitch(item)"
+                @update:value="updateAccountLock"
+              >
+                <template #checked> 启用 </template>
+                <template #unchecked> 禁用 </template>
+              </n-switch>
             </td>
             <td>{{ item.siteUid }}</td>
             <td>
@@ -81,7 +90,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, computed, onMounted } from 'vue';
+import { defineComponent, reactive, computed, onMounted, CSSProperties } from 'vue';
 import { useMessage } from 'naive-ui';
 import {
   fetchAllUser,
@@ -190,18 +199,53 @@ export default defineComponent({
         obj.condition.pageSize = originCondition.pageSize;
         obj.condition.pageNum = originCondition.pageNum;
         loadUserData();
-        console.log('listpage');
       });
     });
 
+    const updateAccountLock = (value: boolean) => {
+      // console.log(value);
+      // obj.currentUser.accountLock = value;
+      // // 更新
+      // updateUser(obj.currentUser).then(data => {
+      //   if (data.success) {
+      //     message.success('修改成功');
+      //   }
+      // });
+    };
+
+    const clickSwitch = (userInfo: User) => {
+      // 更新
+      updateUser(obj.currentUser).then(data => {
+        if (data.success) {
+          message.success('修改成功');
+        }
+      });
+    };
     return {
       obj,
+      clickSwitch,
       handleDeleteUserClick,
+      updateAccountLock,
       loadUserData,
       changePageSize,
       changeCurrentPage,
       clickModifyUserInfo,
-      addUserInfo
+      addUserInfo,
+      railStyle: ({ focused, checked }: { focused: boolean; checked: boolean }) => {
+        const style: CSSProperties = {};
+        if (checked) {
+          style.background = '#d03050';
+          if (focused) {
+            style.boxShadow = '0 0 0 2px #2080f040';
+          }
+        } else {
+          style.background = '#2080f0';
+          if (focused) {
+            style.boxShadow = '0 0 0 2px #d0305040';
+          }
+        }
+        return style;
+      }
     };
   },
   created() {

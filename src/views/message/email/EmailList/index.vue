@@ -37,6 +37,7 @@
                   </template>
                   删除{{ item.email }}么?
                 </n-popconfirm>
+                <n-button @click="clickSendButton(item)">发送</n-button>
                 <n-button @click="clickModifyEmailInfo(item)">编辑</n-button>
               </n-space>
             </td>
@@ -65,13 +66,25 @@
         </n-space>
       </template>
     </n-card>
+    <n-modal v-model:show="obj.showModal" preset="dialog" title="Dialog">
+      <template #header>
+        <div>发送自定义邮件</div>
+      </template>
+      <n-space vertical :size="30">
+        <n-input v-model:value="obj.sendEmailContent.subject" clearable type="text" placeholder="标题" />
+        <n-input v-model:value="obj.sendEmailContent.content" clearable type="textarea" placeholder="邮件内容" />
+      </n-space>
+      <template #action>
+        <n-button type="success" ghost @click="sendCustomEmail"> 发送 </n-button>
+      </template>
+    </n-modal>
   </n-space>
 </template>
 
 <script lang="ts">
 import { defineComponent, reactive, computed, onMounted } from 'vue';
-import { useMessage } from 'naive-ui';
-import { fetchAllUser, deleteUserByUserUid, fetchAllEmail, deleteEmailByUid } from '@/service';
+import { useMessage, useLoadingBar } from 'naive-ui';
+import { fetchAllUser, deleteUserByUserUid, fetchAllEmail, deleteEmailByUid, sendCustomHtmlMail } from '@/service';
 import { fetchEmailByUid } from '@/service/api/message/email';
 import { Condition, User } from '@/theme';
 import emitter from '@/utils/mitt';
@@ -79,6 +92,7 @@ import { Email } from '@/theme/message';
 
 export default defineComponent({
   setup(props, context) {
+    const loadingBar = useLoadingBar();
     const message = useMessage();
     const obj = reactive({
       number: 1,
@@ -88,7 +102,12 @@ export default defineComponent({
       pageCount: 0,
       emailDataArr: new Array<Email>(),
       currentEmail: new Email(),
-      condition: new Condition(null, null, null)
+      condition: new Condition(null, null, null),
+      showModal: false,
+      sendEmailContent: {
+        subject: '',
+        content: ''
+      }
     });
 
     async function loadEmailByUid(emailUid: string): Email {
@@ -158,9 +177,39 @@ export default defineComponent({
       });
     });
 
+    const sendCustomEmail = () => {
+      if (!obj.sendEmailContent.content || obj.sendEmailContent.content === '') {
+        message.error('邮件内容不能为空');
+        return;
+      }
+      loadingBar.start();
+      // 发送自定义邮件
+      sendCustomHtmlMail(obj.sendEmailContent.subject, obj.sendEmailContent.content, obj.currentEmail.email as string)
+        .then(data => {
+          if (data.success) {
+            message.success('发送成功');
+            loadingBar.finish();
+            obj.showModal = false;
+          } else {
+            loadingBar.error();
+          }
+        })
+        .catch(e => {
+          loadingBar.error();
+        });
+    };
+    const clickSendButton = (emailInfo: Email) => {
+      obj.currentEmail = emailInfo;
+      obj.showModal = true;
+      obj.sendEmailContent.content = '';
+      obj.sendEmailContent.subject = '';
+    };
+
     return {
       obj,
       handleDeleteEmailClick,
+      sendCustomEmail,
+      clickSendButton,
       loadEmailData,
       changePageSize,
       changeCurrentPage,

@@ -59,6 +59,9 @@ declare namespace AuthRoute {
     | 'auth'
     | 'auth_login'
     | 'auth_oauth-client'
+    | 'file'
+    | 'file_picture'
+    | 'file_other-file'
     | 'about';
 
   /** 路由的path */

@@ -296,8 +296,10 @@ const columns = createColumns({
   deleteMessageLog(row) {
     // 删除邮箱记录
     deleteMessageLog(row.uid as string).then(data => {
-      message.success('删除成功');
-      loadAllMessageLog();
+      if (data.success) {
+        message.success('删除成功');
+        loadAllMessageLog();
+      }
     });
   },
   showMessageLog(row) {
