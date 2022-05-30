@@ -2,10 +2,10 @@
 export async function handleServiceResult<T = any>(error: Service.RequestError | null, data: any) {
   if (error) {
     const fail: Service.SuccessResult = {
-      data: data.data,
-      code: data.code,
-      message: data.message,
-      success: data.success
+      data: null,
+      code: error.code,
+      message: error.msg,
+      success: false
     };
     return fail;
   }

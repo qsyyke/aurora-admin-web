@@ -21,7 +21,7 @@
               round
               clearable
               placeholder="请输入Uid"
-              @input="handleSearch"
+              @blur="validateUid"
             >
               <template #prefix>
                 <icon-uil-search class="text-15px text-[#c2c2c2]" />
@@ -41,7 +41,7 @@
               round
               clearable
               placeholder="请输入其他Uid"
-              @input="handleSearch"
+              @blur="validateOtherUid"
             >
               <template #prefix>
                 <icon-uil-search class="text-15px text-[#c2c2c2]" />
@@ -55,14 +55,7 @@
             <n-tag checkable> 关键词 </n-tag>
           </n-grid-item>
           <n-grid-item span="l:3">
-            <n-input
-              ref="inputRef"
-              v-model:value="condition.keyword"
-              round
-              clearable
-              placeholder="请输入关键词"
-              @input="handleSearch"
-            >
+            <n-input ref="inputRef" v-model:value="condition.keyword" round clearable placeholder="请输入关键词">
               <template #prefix>
                 <icon-uil-search class="text-15px text-[#c2c2c2]" />
               </template>
@@ -74,6 +67,7 @@
           v-model:value="startAndEndTime"
           type="datetimerange"
           :shortcuts="rangeShortcuts"
+          @clear="clearDate"
           @update:show="handleDate"
         />
       </n-space>
@@ -131,10 +125,12 @@
 <script lang="ts" setup>
 import { ref, shallowRef, computed, watch, nextTick, reactive } from 'vue';
 import { useRouter } from 'vue-router';
+import { useMessage } from 'naive-ui';
 import { useDebounceFn, onKeyStroke } from '@vueuse/core';
 import { useRouteStore } from '@/store';
-import { formatTime } from '@/utils';
+import { formatTime, objectAssign } from '@/utils';
 import { Condition } from '@/theme';
+import emitter from '@/utils/mitt';
 import SearchResult from './SearchResult.vue';
 import SearchFooter from './SearchFooter.vue';
 
@@ -146,6 +142,8 @@ interface Props {
 interface Emits {
   (e: 'update:value', val: boolean): void;
 }
+
+const message = useMessage();
 
 const props = defineProps<Props>();
 
@@ -173,7 +171,23 @@ const condition = ref(new Condition(false, true, true));
 
 const startAndEndTime = ref();
 
-const handleSearch = useDebounceFn(search, 300);
+const validateUid = () => {
+  const uidRegex = /^[0-9]+/;
+  if (condition.value.uid !== null) {
+    if (!uidRegex.test(`${condition.value.uid}`)) {
+      condition.value.uid = null;
+    }
+  }
+};
+
+const validateOtherUid = () => {
+  const uidRegex = /^[0-9]+/;
+  if (condition.value.otherUid !== null) {
+    if (!uidRegex.test(`${condition.value.otherUid}`)) {
+      condition.value.otherUid = null;
+    }
+  }
+};
 
 const show = computed({
   get() {
@@ -186,13 +200,32 @@ const show = computed({
 
 const handleDate = (showControl: boolean) => {
   if (!showControl) {
-    condition.value.startTime = formatTime(startAndEndTime.value[0]);
-    condition.value.endTime = formatTime(startAndEndTime.value[1]);
+    if (startAndEndTime.value !== null) {
+      condition.value.startTime = formatTime(startAndEndTime.value[0]);
+      condition.value.endTime = formatTime(startAndEndTime.value[1]);
+    }
   }
 };
 
+const clearDate = () => {
+  condition.value.startTime = null;
+  condition.value.endTime = null;
+};
+
 const handleConditionButtonClick = () => {
-  console.log(condition.value);
+  if (condition.value.keyword === '') {
+    condition.value.keyword = null;
+  }
+  if (condition.value.otherUid === '') {
+    condition.value.otherUid = null;
+  }
+  if (condition.value.uid === '') {
+    condition.value.uid = null;
+  }
+  // 将当前的condition发送到当前使用的页面
+  emitter.emit('globalSearchCondition', condition.value);
+
+  show.value = false;
 };
 
 watch(show, async val => {

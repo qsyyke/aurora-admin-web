@@ -1,4 +1,6 @@
 import { EnumStorageKey } from '@/enum';
+import { User } from '@/theme';
+import { Email } from '@/theme/message';
 import { getLocal, removeLocal, setLocal } from '../storage';
 
 /** 设置token */
@@ -32,7 +34,7 @@ export function removeRefreshToken() {
 }
 
 /** 获取用户信息 */
-export function getUserInfo() {
+export function getAuthUserInfo() {
   const emptyInfo: Auth.UserInfo = {
     userUid: '',
     username: '',
@@ -41,12 +43,32 @@ export function getUserInfo() {
     verifyEmail: false,
     roleArr: null
   };
-  const userInfo: Auth.UserInfo = getLocal<Auth.UserInfo>(EnumStorageKey['user-info']) || emptyInfo;
+  const userInfo: Auth.UserInfo = getLocal<Auth.UserInfo>(EnumStorageKey['auth_user-info']) || emptyInfo;
   return userInfo;
 }
 
 /** 设置用户信息 */
-export function setUserInfo(userInfo: Auth.UserInfo) {
+export function setAuthUserInfo(userInfo: Auth.UserInfo) {
+  setLocal(EnumStorageKey['auth_user-info'], userInfo);
+}
+
+/** 去除用户信息 */
+export function removeAuthUserInfo() {
+  removeLocal(EnumStorageKey['auth_user-info']);
+}
+
+/** 获取用户信息 */
+export function getUserInfo() {
+  const emptyInfo: User = new User();
+  const userInfo: User = getLocal<User>(EnumStorageKey['auth_user-info']) || emptyInfo;
+  if (!userInfo.email) {
+    userInfo.email = new Email();
+  }
+  return userInfo;
+}
+
+/** 设置用户信息 */
+export function setUserInfo(userInfo: User) {
   setLocal(EnumStorageKey['user-info'], userInfo);
 }
 
@@ -59,22 +81,11 @@ export function removeUserInfo() {
 export function clearAuthStorage() {
   removeToken();
   removeRefreshToken();
+  removeAuthUserInfo();
   removeUserInfo();
 }
 
-export function getUserInfoFromJwt(tokenInfo: ApiAuth.Token): Auth.UserInfo {
-  // 从accessJwt中获取用户信息
-  return new User(
-    tokenInfo.nickname,
-    tokenInfo.authority,
-    'super',
-    tokenInfo.user_uid,
-    tokenInfo.username,
-    tokenInfo.verify_email
-  );
-}
-
-class User implements Auth.UserInfo {
+class AuthUser implements Auth.UserInfo {
   constructor(
     nickname: string,
     roleArr: Set<string>,
@@ -102,4 +113,16 @@ class User implements Auth.UserInfo {
   username: string;
 
   verifyEmail: boolean;
+}
+
+export function getUserInfoFromJwt(tokenInfo: ApiAuth.Token): Auth.UserInfo {
+  // 从accessJwt中获取用户信息
+  return new AuthUser(
+    tokenInfo.nickname,
+    tokenInfo.authority,
+    'super',
+    tokenInfo.user_uid,
+    tokenInfo.username,
+    tokenInfo.verify_email
+  );
 }

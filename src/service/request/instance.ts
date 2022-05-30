@@ -77,11 +77,8 @@ export default class CustomAxiosInstance {
               return this.instance.request(config);
             }
           }
-
           // 请求配置
           const error = handleBackendError(backend, this.backendConfig);
-          console.log('asdfkhasd');
-          console.log(error);
           return handleServiceResult(error, backend);
         }
         const error = handleResponseError(response);

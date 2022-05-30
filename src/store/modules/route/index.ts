@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { router, constantRoutes, routes as staticRoutes } from '@/router';
 import { fetchUserRoutes } from '@/service';
 import {
-  getUserInfo,
+  getAuthUserInfo,
   transformAuthRouteToMenu,
   transformAuthRoutesToVueRoutes,
   transformAuthRoutesToSearchMenus,
@@ -80,7 +80,7 @@ export const useRouteStore = defineStore('route-store', {
     /** 初始化动态路由 */
     async initDynamicRoute() {
       // console.log("初始化动态路由")
-      const { userUid } = getUserInfo();
+      const { userUid } = getAuthUserInfo();
       const { data } = await fetchUserRoutes(userUid);
       if (data) {
         this.routeHomeName = data.home;
@@ -98,7 +98,7 @@ export const useRouteStore = defineStore('route-store', {
     async initAuthRoute() {
       // console.log("初始化权限路由")
       const { initHomeTab } = useTabStore();
-      const { userUid } = getUserInfo();
+      const { userUid } = getAuthUserInfo();
       if (!userUid) return;
 
       const isDynamicRoute = this.authRouteMode === 'dynamic';

@@ -31,7 +31,7 @@ export class User {
   /**
    * 用户性别
    */
-  gender?: number | null;
+  gender?: string | null;
 
   /**
    * 该用户对应的网站设置的uid

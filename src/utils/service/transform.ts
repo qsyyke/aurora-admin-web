@@ -21,6 +21,9 @@ export async function transformRequestData(requestData: any, contentType?: strin
   //   const file = requestData.data[key];
   //   data = await transformFile(file, key);
   // }
+  if (contentType === EnumContentType.formData) {
+    return data;
+  }
   data = qs.stringify(requestData);
   return data;
 }

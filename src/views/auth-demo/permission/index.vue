@@ -2,10 +2,10 @@
   <div class="h-full">
     <n-card title="权限切换" class="h-full shadow-sm rounded-16px">
       <div class="pb-12px">
-        <n-gradient-text type="primary" :size="20">当前用户的权限：{{ auth.userInfo.userRole }}</n-gradient-text>
+        <n-gradient-text type="primary" :size="20">当前用户的权限：{{ auth.authUserInfo.userRole }}</n-gradient-text>
       </div>
       <n-select
-        :value="auth.userInfo.userRole"
+        :value="auth.authUserInfo.userRole"
         class="w-120px"
         size="small"
         :options="options"

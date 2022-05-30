@@ -110,7 +110,7 @@ export default defineComponent({
       pageCount: 0,
       userDataArr: new Array<User>(),
       currentUser: new User(),
-      condition: new Condition(false, true, true)
+      condition: new Condition(null, null, null)
     });
 
     async function loadEmailByUid(emailUid: string): Email {
@@ -182,6 +182,15 @@ export default defineComponent({
     onMounted(() => {
       emitter.on('reloadUserData', e => {
         loadUserData();
+      });
+
+      emitter.on('globalSearchCondition', e => {
+        const originCondition = obj.condition;
+        obj.condition = e as Condition;
+        obj.condition.pageSize = originCondition.pageSize;
+        obj.condition.pageNum = originCondition.pageNum;
+        loadUserData();
+        console.log('listpage');
       });
     });
 

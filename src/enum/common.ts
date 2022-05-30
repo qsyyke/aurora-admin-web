@@ -15,6 +15,8 @@ export enum EnumStorageKey {
   'refresh-token' = '__REFRESH_TOKEN__',
   /** 用户信息 */
   'user-info' = '__USER_INFO__',
+  /** 认证的用户信息 */
+  'auth_user-info' = '__AUTH_USER_INFO__',
   /** 多页签路由信息 */
   'tab-routes' = '__TAB_ROUTES__'
 }

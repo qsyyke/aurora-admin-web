@@ -33,6 +33,13 @@ export function handleAxiosError(axiosError: AxiosError) {
       }
     ],
     [
+      // 后端500错误
+      axiosError.message === 'Request failed with status code 500',
+      () => {
+        Object.assign(error, { code: 500, msg: axiosError.response?.data.message });
+      }
+    ],
+    [
       // 超时错误
       axiosError.code === REQUEST_TIMEOUT_CODE && axiosError.message.includes('timeout'),
       () => {

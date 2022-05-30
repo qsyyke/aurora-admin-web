@@ -2,38 +2,50 @@ import { unref } from 'vue';
 import { defineStore } from 'pinia';
 import { router } from '@/router';
 import { useRouterPush } from '@/composables';
-import { fetchLogin } from '@/service';
+import { fetchLogin, fetchUserByUserUid } from '@/service';
 import {
-  getUserInfo,
+  getAuthUserInfo,
   getToken,
-  setUserInfo,
+  setAuthUserInfo,
   setToken,
   setRefreshToken,
   getUserInfoFromJwt,
-  clearAuthStorage
+  clearAuthStorage,
+  getUserInfo,
+  setUserInfo
 } from '@/utils';
+import { User } from '@/theme';
+import { fetchEmailByUserUid } from '@/service/api/email';
 import { useTabStore } from '../tab';
 import { useRouteStore } from '../route';
 
 interface AuthState {
   /** 用户信息 */
-  userInfo: Auth.UserInfo;
+  authUserInfo: Auth.UserInfo;
   /** 用户token */
   token: string;
   /** 登录的加载状态 */
   loginLoading: boolean;
+  userInfo: User;
 }
 
 export const useAuthStore = defineStore('auth-store', {
   state: (): AuthState => ({
-    userInfo: getUserInfo(),
+    authUserInfo: getAuthUserInfo(),
     token: getToken(),
-    loginLoading: false
+    loginLoading: false,
+    userInfo: getUserInfo()
   }),
   getters: {
     /** 是否登录 */
     isLogin(state) {
       return Boolean(state.token);
+    },
+    getAuthUserInfo(): Auth.UserInfo {
+      return this.authUserInfo;
+    },
+    getUserInfo(): User {
+      return this.userInfo;
     }
   },
   actions: {
@@ -70,7 +82,7 @@ export const useAuthStore = defineStore('auth-store', {
         // 登录成功弹出欢迎提示
         window.$notification?.success({
           title: '登录成功!',
-          content: `欢迎回来，${this.userInfo.username}!`,
+          content: `欢迎回来，${this.authUserInfo.username}!`,
           duration: 3000
         });
 
@@ -97,13 +109,29 @@ export const useAuthStore = defineStore('auth-store', {
       // eslint-disable-next-line camelcase
       if (access_token) {
         // 成功后把用户信息存储到缓存中
-        setUserInfo(userInfo);
+        setAuthUserInfo(userInfo);
 
         // 更新状态
-        this.userInfo = userInfo;
+        this.authUserInfo = userInfo;
         this.token = access_token;
 
         successFlag = true;
+
+        // 获取用户的信息
+        fetchUserByUserUid(this.authUserInfo.userUid).then(data => {
+          if (data.success) {
+            this.userInfo = data.data;
+            setUserInfo(data.data);
+
+            // 获取用户邮箱信息，可能服务没有启动
+            fetchEmailByUserUid(this.userInfo.uid).then(res => {
+              if (res.success) {
+                this.userInfo.email = res.data;
+                setUserInfo(this.userInfo);
+              }
+            });
+          }
+        });
       }
 
       return successFlag;

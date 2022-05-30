@@ -6,7 +6,7 @@ export function fetchAllUser(condition: Condition) {
 }
 
 export function fetchUserByUserUid(userUid: string) {
-  return request.get<any>(`/admin/user/userUid/${userUid}`);
+  return request.get<User>(`/admin/user/userUid/${userUid}`);
 }
 
 export function fetchUserByUsername(username: string) {
@@ -31,6 +31,10 @@ export function updateUser(user: User) {
 
 export function physicsDeleteUser(userUid: string) {
   return request.delete(`/admin/user/delete/${userUid}`, {});
+}
+
+export function updateUserPassword(username: string, originPwd: string, newPwd: string) {
+  return request.put(`/admin/user/pwd`, { username, originPwd, newPwd });
 }
 
 export function bindEmailForUser(email: string) {
