@@ -29,6 +29,8 @@ export class Condition {
   // 关键词
   keyword?: string | null;
 
+  otherField?: Object | null;
+
   constructor(isDelete: boolean | null, status: boolean | null, show: boolean | null) {
     this.delete = isDelete;
     this.status = status;

@@ -1,4 +1,4 @@
-export class File {
+export class AuroraFile {
   /**
    * 唯一uid 不能为null 主键
    */

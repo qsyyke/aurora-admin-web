@@ -132,7 +132,7 @@
 
 <script lang="ts">
 import { reactive, defineComponent } from 'vue';
-import { NP, useMessage } from 'naive-ui';
+import { NP, UploadFileInfo, useMessage } from 'naive-ui';
 import { useAuthStore } from '@/store';
 import { updateUser, uploadSingleFile } from '@/service';
 import { User } from '@/theme';

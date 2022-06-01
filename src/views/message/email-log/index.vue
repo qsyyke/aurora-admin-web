@@ -48,119 +48,119 @@ import emitter from '@/utils/mitt';
 const message = useMessage();
 const loadingBar = useLoadingBar();
 const createColumns = ({
-  deleteEmailLog,
-  showEmailLog
-}: {
-  deleteEmailLog: (rowData: EmailLog) => void;
-  showEmailLog: (rowData: EmailLog) => void;
+												 deleteEmailLog,
+												 showEmailLog
+											 }: {
+	deleteEmailLog: (rowData: EmailLog) => void;
+	showEmailLog: (rowData: EmailLog) => void;
 }): DataTableColumns<EmailLog> => {
-  return [
-    {
-      type: 'selection'
-    },
-    {
-      title: 'Uid',
-      key: 'uid',
-      width: 150
-    },
-    {
-      title: '标题',
-      key: 'subject',
-      width: 250
-    },
-    {
-      title: '邮件内容',
-      key: 'content',
-      width: 300,
-      render(row) {
-        return h(
-          NEllipsis,
-          {
-            lineClamp: 2,
-            tooltip: false
-          },
-          {
-            default: () => row.content
-          }
-        );
-      }
-    },
-    {
-      title: '发送者',
-      key: 'sender',
-      width: 200
-    },
-    {
-      title: '收件人',
-      key: 'receiver',
-      width: 200
-    },
-    {
-      title: '状态',
-      key: 'send',
-      width: 170,
-      render(row) {
-        return h(
-          NTag,
-          {
-            style: {
-              marginRight: '6px'
-            },
-            type: row.send ? 'success' : 'error'
-          },
-          {
-            default: () => (row.send ? '已成功发送' : '发送失败')
-          }
-        );
-      }
-    },
-    {
-      title: '创建时间',
-      key: 'createTime',
-      width: 200
-    },
-    {
-      title: '最后更新时间',
-      key: 'updateTime',
-      width: 200
-    },
-    {
-      title: '操作',
-      key: 'actions',
-      fixed: 'right',
-      width: 300,
-      render(row) {
-        return h(
-          NSpace,
-          {
-            justify: 'center'
-          },
-          Array.of(
-            h(
-              NButton,
-              {
-                size: 'small',
-                type: 'warning',
-                ghost: true,
-                onClick: () => deleteEmailLog(row)
-              },
-              { default: () => '删除' }
-            ),
-            h(
-              NButton,
-              {
-                size: 'small',
-                type: 'primary',
-                ghost: true,
-                onClick: () => showEmailLog(row)
-              },
-              { default: () => '查看' }
-            )
-          )
-        );
-      }
-    }
-  ];
+	return [
+		{
+			type: 'selection'
+		},
+		{
+			title: 'Uid',
+			key: 'uid',
+			width: 150
+		},
+		{
+			title: '标题',
+			key: 'subject',
+			width: 250
+		},
+		{
+			title: '邮件内容',
+			key: 'content',
+			width: 300,
+			render(row) {
+				return h(
+					NEllipsis,
+					{
+						lineClamp: 2,
+						tooltip: false
+					},
+					{
+						default: () => row.content
+					}
+				);
+			}
+		},
+		{
+			title: '发送者',
+			key: 'sender',
+			width: 200
+		},
+		{
+			title: '收件人',
+			key: 'receiver',
+			width: 200
+		},
+		{
+			title: '状态',
+			key: 'send',
+			width: 170,
+			render(row) {
+				return h(
+					NTag,
+					{
+						style: {
+							marginRight: '6px'
+						},
+						type: row.send ? 'success' : 'error'
+					},
+					{
+						default: () => (row.send ? '已成功发送' : '发送失败')
+					}
+				);
+			}
+		},
+		{
+			title: '创建时间',
+			key: 'createTime',
+			width: 200
+		},
+		{
+			title: '最后更新时间',
+			key: 'updateTime',
+			width: 200
+		},
+		{
+			title: '操作',
+			key: 'actions',
+			fixed: 'right',
+			width: 300,
+			render(row) {
+				return h(
+					NSpace,
+					{
+						justify: 'center'
+					},
+					Array.of(
+						h(
+							NButton,
+							{
+								size: 'small',
+								type: 'warning',
+								ghost: true,
+								onClick: () => deleteEmailLog(row)
+							},
+							{ default: () => '删除' }
+						),
+						h(
+							NButton,
+							{
+								size: 'small',
+								type: 'primary',
+								ghost: true,
+								onClick: () => showEmailLog(row)
+							},
+							{ default: () => '查看' }
+						)
+					)
+				);
+			}
+		}
+	];
 };
 
 const obj = reactive({
