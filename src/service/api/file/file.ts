@@ -29,6 +29,10 @@ export function fetchSpecifyFormatFiles(condition: Condition) {
   return request.get<Service.ListResult<AuroraFile>>('/file/formatFile', condition, { params: condition });
 }
 
+export function fetchAllFileFormat(userUid: string) {
+  return request.get<Array<string>>(`/file/format/${userUid}`);
+}
+
 export function fetchFileByUid(fileUid: string) {
   return request.get<Service.ListResult<AuroraFile>>(`/file/${fileUid}`);
 }
@@ -39,6 +43,10 @@ export function updateFileInfo(fileInfo: AuroraFile) {
 
 export function deleteFile(fileUid: string) {
   return request.delete(`/file/${fileUid}`, {});
+}
+
+export function deleteFileInfo(uid: string) {
+  return request.delete(`/file/info/${uid}`, {});
 }
 
 export function downloadFileByUid(fileUid: string) {

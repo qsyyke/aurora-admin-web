@@ -85,6 +85,58 @@ export const routeModel: Record<Auth.RoleType, AuthRoute.Route[]> = {
       }
     },
     {
+      name: 'monitor',
+      path: '/monitor',
+      component: 'basic',
+      children: [
+        {
+          name: 'monitor_nacos',
+          path: '/monitor/nacos',
+          component: 'self',
+          meta: {
+            title: 'Nacos',
+            requiresAuth: true,
+            icon: 'mdi:vuejs'
+          }
+        },
+        {
+          name: 'monitor_sentinel',
+          path: '/monitor/sentinel',
+          component: 'self',
+          meta: {
+            title: 'Sentinel',
+            requiresAuth: true,
+            icon: 'mdi:vuejs'
+          }
+        },
+        {
+          name: 'monitor_rabbitmq',
+          path: '/monitor/rabbitmq',
+          component: 'self',
+          meta: {
+            title: 'Rabbitmq',
+            requiresAuth: true,
+            icon: 'simple-icons:vite'
+          }
+        },
+        {
+          name: 'monitor_seata',
+          path: '/monitor/seata',
+          component: 'self',
+          meta: {
+            title: 'Seata',
+            requiresAuth: true,
+            icon: 'simple-icons:vite'
+          }
+        }
+      ],
+      meta: {
+        title: '监控',
+        icon: 'carbon:document',
+        order: 2
+      }
+    },
+    {
       name: 'component',
       path: '/component',
       component: 'basic',
@@ -461,6 +513,110 @@ export const routeModel: Record<Auth.RoleType, AuthRoute.Route[]> = {
       ],
       meta: {
         title: '文件',
+        icon: 'carbon:dashboard',
+        order: 1
+      }
+    },
+    {
+      name: 'comment',
+      path: '/comment',
+      component: 'basic',
+      children: [
+        {
+          name: 'comment_show',
+          path: '/comment/show',
+          component: 'self',
+          meta: {
+            title: '展示',
+            requiresAuth: true,
+            icon: 'icon-park-outline:analysis'
+          }
+        }
+      ],
+      meta: {
+        title: '评论',
+        icon: 'carbon:dashboard',
+        order: 1
+      }
+    },
+    {
+      name: 'article',
+      path: '/article',
+      component: 'basic',
+      children: [
+        {
+          name: 'article_blog-article',
+          path: '/article/blog-article',
+          component: 'self',
+          meta: {
+            title: '博客文章管理',
+            requiresAuth: true,
+            icon: 'icon-park-outline:analysis'
+          }
+        },
+        {
+          name: 'article_bulletin',
+          path: '/article/bulletin',
+          component: 'self',
+          meta: {
+            title: '公告',
+            requiresAuth: true,
+            icon: 'icon-park-outline:analysis'
+          }
+        },
+        {
+          name: 'article_category',
+          path: '/article/category',
+          component: 'self',
+          meta: {
+            title: '类别',
+            requiresAuth: true,
+            icon: 'icon-park-outline:analysis'
+          }
+        },
+        {
+          name: 'article_edit-article',
+          path: '/article/edit-article',
+          component: 'self',
+          meta: {
+            title: '发布',
+            requiresAuth: true,
+            icon: 'icon-park-outline:analysis'
+          }
+        },
+        {
+          name: 'article_link',
+          path: '/article/link',
+          component: 'self',
+          meta: {
+            title: '友情链接',
+            requiresAuth: true,
+            icon: 'icon-park-outline:analysis'
+          }
+        },
+        {
+          name: 'article_tag',
+          path: '/article/tag',
+          component: 'self',
+          meta: {
+            title: '分类',
+            requiresAuth: true,
+            icon: 'icon-park-outline:analysis'
+          }
+        },
+        {
+          name: 'article_talk',
+          path: '/article/talk',
+          component: 'self',
+          meta: {
+            title: '说说',
+            requiresAuth: true,
+            icon: 'icon-park-outline:analysis'
+          }
+        }
+      ],
+      meta: {
+        title: '文章',
         icon: 'carbon:dashboard',
         order: 1
       }

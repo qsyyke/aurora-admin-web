@@ -22,6 +22,11 @@ declare namespace AuthRoute {
     | 'document_vite'
     | 'document_naive'
     | 'document_project'
+    | 'monitor'
+    | 'monitor_nacos'
+    | 'monitor_sentinel'
+    | 'monitor_rabbitmq'
+    | 'monitor_seata'
     | 'component'
     | 'component_button'
     | 'component_card'
@@ -62,6 +67,16 @@ declare namespace AuthRoute {
     | 'file'
     | 'file_picture'
     | 'file_other-file'
+    | 'comment'
+    | 'comment_show'
+    | 'article'
+    | 'article_blog-article'
+    | 'article_bulletin'
+    | 'article_category'
+    | 'article_edit-article'
+    | 'article_link'
+    | 'article_tag'
+    | 'article_talk'
     | 'about';
 
   /** 路由的path */

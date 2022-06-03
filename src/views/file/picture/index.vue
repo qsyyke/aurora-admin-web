@@ -65,7 +65,9 @@
             <n-col :span="24">
               <div style="display: flex; justify-content: right">
                 <n-space>
-                  <n-button round type="error" @click="handleDeleteFileInfo(obj.currentFileInfo.file)"> 删除 </n-button>
+                  <n-button round type="error" @click="handleDeleteFileInfo(obj.currentFileInfo.file)">
+                    {{ obj.currentFileInfo.file.delete ? '删除文件信息' : '删除文件' }}
+                  </n-button>
                   <n-button round type="primary" @click="handleUpdateFileInfo"> 修改 </n-button>
                 </n-space>
               </div>
@@ -184,6 +186,7 @@
             <n-tag
               v-for="(item, index) in obj.fileFormatOptions"
               :key="index"
+              round
               :checked="obj.searchFileKeyword.has(item)"
               checkable
               @click="clickFileFormat(item)"
@@ -216,6 +219,7 @@ import { useAuthStore } from '@/store';
 import {
   deleteEmailLogByUid,
   deleteFile,
+  deleteFileInfo,
   fetchSpecifyFormatFiles,
   fetchUserByUserUid,
   updateFileInfo,
@@ -342,13 +346,23 @@ const handleUpdateFileInfo = () => {
 // 删除文件
 const handleDeleteFileInfo = (fileInfo: AuroraFile) => {
   obj.currentFileInfo.file = fileInfo;
-  deleteFile(obj.currentFileInfo.file?.uid as string).then(data => {
-    if (data.success) {
-      window.$message?.success(`删除成功`);
-      obj.showDrawer = false;
-      loadAllPicture();
-    }
-  });
+  // 如果该文件已删除，则删除该文件的信息
+  if (obj.currentFileInfo.file.delete) {
+    deleteFileInfo(obj.currentFileInfo.file.uid as string).then(data => {
+      if (data.success) {
+        window.$message?.success('已成功删除该文件信息');
+        loadAllPicture();
+      }
+    });
+  } else {
+    deleteFile(obj.currentFileInfo.file?.uid as string).then(data => {
+      if (data.success) {
+        window.$message?.success(`删除${obj.currentFileInfo.file?.fileName}文件成功`);
+        obj.showDrawer = false;
+        loadAllPicture();
+      }
+    });
+  }
 };
 
 const handleUploadFileChange = (options: { fileList: UploadFileInfo[] }) => {
@@ -561,7 +575,7 @@ const createColumns = (): DataTableColumns<PictureInfo> => {
             type: 'success'
           },
           {
-            default: () => row.file.storageMode
+            default: () => obj.storageModeOption[row.file.storageMode]
           }
         );
       }
@@ -596,7 +610,7 @@ const createColumns = (): DataTableColumns<PictureInfo> => {
                 ghost: true,
                 onClick: () => handleDeleteFileInfo(row.file as AuroraFile)
               },
-              { default: () => '删除' }
+              { default: () => (row.file.delete ? '删除文件信息' : '删除文件') }
             ),
             h(
               NButton,
