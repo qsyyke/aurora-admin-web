@@ -17,12 +17,12 @@ export class Article {
   /**
    * 文章类别uid集合
    */
-  categoryUids?: string | null;
+  categoryNames?: string | null;
 
   /**
    * 文章标签uid集合
    */
-  tagUids?: string | null;
+  tagNames?: string | null;
 
   /**
    * 文章是否发布，1：发布，0：不发布

@@ -11,19 +11,21 @@ import { isArray } from '../common';
 export async function transformRequestData(requestData: any, contentType?: string) {
   // application/json类型不处理
   let data = requestData;
+  // form-data类型转换
+  if (contentType === EnumContentType.formData) {
+    const key = Object.keys(requestData)[0];
+    const file = requestData[key];
+    const formFileData = (await transformFile(file, key)) as FormData;
+    formFileData.append('storageMode', data.storageMode);
+    formFileData.append('userUid', data.userUid);
+    formFileData.append('summary', data.summary);
+    return formFileData;
+  }
+
   // form类型转换
   // if (contentType === EnumContentType.formUrlencoded) {
-  //   data = qs.stringify(requestData);
+  // 	data = qs.stringify(requestData);
   // }
-  // // form-data类型转换
-  // if (contentType === EnumContentType.formData) {
-  //   const key = Object.keys(requestData)[0];
-  //   const file = requestData.data[key];
-  //   data = await transformFile(file, key);
-  // }
-  if (contentType === EnumContentType.formData) {
-    return data;
-  }
   data = qs.stringify(requestData);
   return data;
 }

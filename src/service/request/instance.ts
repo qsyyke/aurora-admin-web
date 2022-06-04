@@ -10,6 +10,7 @@ import {
   handleBackendError,
   handleServiceResult
 } from '@/utils';
+import dashboard from '@/router/modules/dashboard';
 import { handleRefreshToken } from './helpers';
 
 /**

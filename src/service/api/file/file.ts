@@ -12,9 +12,9 @@ export function uploadSingleFile(fileData, storageMode: number, summary: string,
 }
 
 export function uploadMultiFile(fileData, storageMode: number, summary: string, userUid: string) {
-  return request.post<AuroraFile>(
+  return request.post<Array<AuroraFile>>(
     '/file/multi',
-    { files: fileData, storageMode, summary, userUid },
+    { file: fileData, storageMode, summary, userUid },
     {
       headers: { 'Content-Type': 'multipart/form-data' }
     }
