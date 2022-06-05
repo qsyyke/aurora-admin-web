@@ -70,8 +70,8 @@ export function createRequest(axiosConfig: AxiosRequestConfig, backendConfig?: S
    * @param url - 请求地址
    * @param config - axios配置
    */
-  async function handleDelete<T>(url: string, config: AxiosRequestConfig) {
-    return asyncRequest<T>({ url, method: 'delete', axiosConfig: config });
+  async function handleDelete<T>(url: string, config: AxiosRequestConfig, data?: any) {
+    return asyncRequest<T>({ url, method: 'delete', data, axiosConfig: config });
   }
 
   return {

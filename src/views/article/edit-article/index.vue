@@ -1,10 +1,10 @@
 <template>
-  <n-space vertical>
+  <div>
     <n-layout has-sider sider-placement="right">
       <n-layout-content content-style="padding: 24px;">
         <n-space vertical :size="50">
           <div>
-            <n-descriptions label-placement="top" title="标题" :column="1" size="large">
+            <n-descriptions label-placement="top" :column="1" size="large">
               <n-descriptions-item>
                 <template #default>
                   <n-input
@@ -25,7 +25,6 @@
 
           <div>
             <n-space vertical :size="0">
-              <n-h5> 内容 </n-h5>
               <div ref="articleMarkdown"></div>
             </n-space>
           </div>
@@ -45,7 +44,9 @@
             <n-col :span="24">
               <div style="display: flex; justify-content: left">
                 <n-space>
-                  <n-button round type="primary" @click="handlePublishArticle"> 发布 </n-button>
+                  <n-button round type="primary" @click="handlePublishArticle">
+                    {{ obj.isEditArticle ? '更新' : '发布' }}
+                  </n-button>
                   <n-button round type="primary" @click="handleSaveArticle"> 保存 </n-button>
                 </n-space>
               </div>
@@ -55,35 +56,32 @@
             <n-descriptions-item label-style="font-size: 1.3rem;">
               <template #label>原创</template>
               <template #default>
-                <n-switch v-model:value="obj.currentArticle.originalArticle" :unchecked-value="false" size="medium" />
+                <n-switch
+                  v-model:value="obj.currentArticle.originalArticle"
+                  :default-value="obj.currentArticle.originalArticle"
+                  size="medium"
+                />
               </template>
             </n-descriptions-item>
           </n-descriptions>
           <n-input
-            v-if="!obj.currentArticle.originalArticle && obj.isEditOriginArticleUrl"
+            v-show="!obj.currentArticle.originalArticle"
             v-model:value="obj.currentArticle.originalArticleUrl"
             type="text"
             :clearable="true"
             placeholder="请输入原创链接"
             :bordered="false"
-            @blur="originalArticleBlurEvent"
           />
-          <n-text
-            v-if="!obj.isEditOriginArticleUrl && !obj.currentArticle.originalArticle"
-            type="primary"
-            :underline="true"
-            style="font-size: 1rem"
-            @click="editOriginalArticleUrl"
-            >{{
-              obj.currentArticle.originalArticleUrl ? obj.currentArticle.originalArticleUrl : '请输入原创地址'
-            }}</n-text
-          >
 
           <n-descriptions label-placement="left" label-align="left" :column="2" size="large" separator="  ">
             <n-descriptions-item label-style="font-size: 1.3rem;">
               <template #label>允许评论</template>
               <template #default>
-                <n-switch v-model:value="obj.currentArticle.showComment" :unchecked-value="false" size="medium" />
+                <n-switch
+                  v-model:value="obj.currentArticle.showComment"
+                  :default-value="obj.currentArticle.showComment"
+                  size="medium"
+                />
               </template>
             </n-descriptions-item>
           </n-descriptions>
@@ -92,11 +90,21 @@
             <n-descriptions-item label-style="font-size: 1.3rem;">
               <template #label>定时发布</template>
               <template #default>
-                <n-switch :unchecked-value="false" size="medium" />
+                <n-switch
+                  v-model:value="obj.currentArticle.timing"
+                  :default-value="obj.currentArticle.timing"
+                  size="medium"
+                />
               </template>
             </n-descriptions-item>
           </n-descriptions>
-          <n-date-picker v-model:value="timingPublishTime" type="datetime" clearable @update:show="handleDate" />
+          <n-date-picker
+            v-if="obj.currentArticle.timing"
+            v-model:value="timingPublishTime"
+            type="datetime"
+            clearable
+            @update:show="handleDate"
+          />
           <n-descriptions label-placement="top" title="标签" :column="1" size="large">
             <n-descriptions-item>
               <template #default>
@@ -144,24 +152,42 @@
               </template>
             </n-descriptions-item>
           </n-descriptions>
+
+          <n-descriptions
+            label-placement="left"
+            separator="  "
+            title="编辑器设置"
+            :column="1"
+            size="large"
+            label-align="left"
+          >
+            <n-descriptions-item label-style="font-size: 1.3rem;">
+              <template #label>大纲</template>
+              <template #default>
+                <n-switch v-model:value="obj.outline" :unchecked-value="false" size="medium" />
+              </template>
+            </n-descriptions-item>
+          </n-descriptions>
         </n-space>
       </n-layout-sider>
     </n-layout>
-  </n-space>
+  </div>
 </template>
 
 <script lang="ts" setup>
 import { ref, watch, onMounted, onUnmounted, reactive, computed, h } from 'vue';
-import { NTag } from 'naive-ui';
+import { NTag, useMessage } from 'naive-ui';
 import Vditor from 'vditor';
 import 'vditor/dist/index.css';
 import { rand } from '@vueuse/core';
-import { uploadFiles } from 'vditor/dist/ts/upload';
-import axios from 'axios';
+import { router } from '@/router';
 import { useAuthStore, useThemeStore } from '@/store';
-import { insertArticle, uploadMultiFile, uploadSingleFile } from '@/service';
+import { fetchArticleByUid, insertArticle, updateArticle, uploadMultiFile, uploadSingleFile } from '@/service';
 import { formatTime } from '@/utils';
 import { Article } from '@/theme/article/article';
+import oauthClientList from '@/views/auth/oauth-client/OauthClientList/index.vue';
+
+const message = useMessage();
 
 const auth = useAuthStore();
 
@@ -169,14 +195,17 @@ const theme = useThemeStore();
 
 const obj = reactive({
   tagTypeOption: ['default', 'primary', 'info', 'success', 'warning', 'error'],
-  isEditArticle: true,
+  isEditArticle: false,
   isEditArticleTitle: false,
   isEditOriginArticleUrl: false,
   isEditCoverUrl: false,
   currentArticle: new Article(),
   tagArr: new Array<string>(),
-  categoryArr: new Array<string>()
+  categoryArr: new Array<string>(),
+  outline: false
 });
+
+const timingPublishTime = ref();
 
 const isImage = (fileName: string): boolean => {
   return /\.(png|jpg|jpeg|gif|webp)$/.test(fileName);
@@ -191,15 +220,19 @@ function renderVditor() {
     minHeight: 800,
     theme: theme.darkMode ? 'dark' : 'classic',
     icon: 'material',
+    preview: {
+      theme: {
+        current: 'light',
+        list: {
+          wechat: 'WeChat'
+        }
+      }
+    },
     cache: { enable: false },
     input(value: string) {
       obj.currentArticle.content = value;
     },
-    focus(value: string) {},
-    esc(value: string) {},
-    select(value: string) {},
     debugger: false,
-    value: obj.currentArticle.content as string,
     // toolbar: [
     //   // {
     //   //   hotkey: '⇧⌘S',
@@ -230,7 +263,7 @@ function renderVditor() {
       enable: true
     },
     outline: {
-      enable: true,
+      enable: obj.outline,
       position: 'left'
     },
     upload: {
@@ -284,15 +317,41 @@ const stopHandle = watch(
 
 onMounted(() => {
   renderVditor();
+
+  // 获取文章的uid
+  const articleUid = router.currentRoute.value.query.uid;
+  if (articleUid && /[0-9]+/.test(articleUid as string)) {
+    obj.isEditArticle = true;
+
+    // 根据uid获取文章数据
+    fetchArticleByUid(articleUid as string).then(data => {
+      if (data.success && data.data.uid) {
+        console.log(data.data);
+        // 数据存在
+        obj.currentArticle = data.data;
+        obj.tagArr = new Array<string>();
+        obj.categoryArr = new Array<string>();
+        obj.currentArticle.tagNames?.split(',').forEach(tag => obj.tagArr.push(tag));
+        obj.currentArticle.categoryNames?.split(',').forEach(category => obj.categoryArr.push(category));
+        setTimeout(() => {
+          vditor.value?.setValue(obj.currentArticle.content as string);
+        }, 1500);
+        if (obj.currentArticle.timing && obj.currentArticle.timingPublishTime) {
+          timingPublishTime.value = new Date(obj.currentArticle.timingPublishTime as string);
+        }
+      } else {
+        // 数据不存在
+        window.$message?.error(`没有发现此 ${articleUid}所对应的文章数据`);
+        // 切换到发布模式
+        obj.isEditArticle = false;
+      }
+    });
+  }
 });
 
 onUnmounted(() => {
   stopHandle();
 });
-
-const getRandomTagType = () => {
-  return obj.tagTypeOption[rand(0, obj.tagTypeOption.length)];
-};
 
 const editTitle = () => {
   obj.isEditArticleTitle = true;
@@ -367,19 +426,24 @@ const handlePublishArticle = () => {
     window.$message?.error('必须要有内容');
     return;
   }
-  if (obj.isEditArticle) {
+  if (!obj.isEditArticle) {
     // 是新文章
     insertArticle(obj.currentArticle).then(data => {
       if (data.success) {
         window.$message?.success('发布成功');
       }
     });
+  } else {
+    // 编辑文章
+    updateArticle(obj.currentArticle).then(data => {
+      if (data.success) {
+        window.$message?.success('更新成功');
+      }
+    });
   }
 };
 
 const handleSaveArticle = () => {};
-
-const timingPublishTime = ref();
 
 const handleDate = (showControl: boolean) => {
   if (!showControl) {

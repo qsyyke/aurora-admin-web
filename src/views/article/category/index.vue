@@ -14,11 +14,9 @@
 </template>
 
 <script lang="ts" setup>
-import { onBeforeMount, onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import * as echarts from 'echarts';
-import { floor } from 'lodash-es';
 import { rand } from '@vueuse/core';
-import { $ref } from 'vue/macros';
 import { useAuthStore } from '@/store';
 import { fetchAllCategory, fetchArticleByCondition, fetchLinkByCondition } from '@/service';
 import CategoryList from '@/views/article/category/CategoryList/index.vue';
@@ -55,6 +53,7 @@ interface GraphNode {
 
 const obj = reactive({
   graphCategories: new Array<GraphCategory>(),
+  graphCategoryNodes: new Array<GraphNode>(),
   graphNodes: new Array<GraphNode>(),
   graphLinks: new Array<GraphLink>(),
   categoriesArr: new Array<Category>(),
@@ -81,82 +80,81 @@ const getRandomCoordinateY = () => {
 };
 
 // 加载数据
-const loadAllCategoryData = () => {
-  return new Promise((resolve, reject) => {
-    obj.categoriesArr = new Array<Category>();
-    obj.graphCategories = new Array<GraphCategory>();
-    // 加载所有的类别
-    obj.condition.pageSize = 1000000;
-    fetchAllCategory(obj.condition).then(data => {
-      data.data.result.forEach((category, index) => {
+async function loadAllCategoryData() {
+  obj.categoriesArr = new Array<Category>();
+  obj.graphCategories = new Array<GraphCategory>();
+  obj.graphCategoryNodes = new Array<GraphNode>();
+
+  // 加载所有的类别
+  obj.condition.pageSize = 1000000;
+  await fetchAllCategory(obj.condition).then(data => {
+    Promise.all(
+      data.data.result.map(category => {
         obj.categoriesArr.push(category);
-        obj.graphCategories.push({ name: category.uid as string, uid: category.uid as string });
+        obj.graphCategories.push({ name: category.title as string, uid: category.uid as string });
 
         // 将类别节点也封装成图节点
-        obj.graphNodes.push({
-          id: category.uid as string,
+        obj.graphCategoryNodes.push({
+          id: category.title as string,
           name: category.title as string,
           symbolSize: calculateSymbolSizeByCreateTime(category.createTime as string),
           x: getRandomCoordinateX(),
           y: getRandomCoordinateY(),
           value: category.title as string,
-          category: category.uid as string
+          category: category.title as string
         });
-        if (index === data.data.result.length - 1) {
-          resolve(1);
-        }
-      });
-    });
-  });
-};
 
-const loadAllLinkData = () => {
-  return new Promise(resolve => {
-    obj.linkArr = new Array<Link>();
-    const condition = new Condition(null, null, null);
-    condition.pageSize = 100000;
-    condition.otherUid = auth.getAuthUserInfo.userUid;
-    if (!condition.otherUid) {
-      window.$message?.error('必须要登录才能获取到友情链接信息');
-      return;
-    }
-    fetchLinkByCondition(condition).then(data => {
-      data.data.result.forEach((link, index) => {
-        if (index === data.data.result.length - 1) {
-          obj.linkArr.push(link);
-          resolve(1);
-        }
-      });
-    });
+        return true;
+      })
+    );
   });
-};
+}
 
-const loadAllArticleData = () => {
-  return new Promise(resolve => {
-    obj.articleArr = new Array<Article>();
-    const condition = new Condition(null, null, null);
-    condition.pageSize = 100000;
-    condition.otherUid = auth.getAuthUserInfo.userUid;
-    if (!condition.otherUid) {
-      window.$message?.error('必须要登录才能获取到友情链接信息');
-      return;
-    }
-    fetchArticleByCondition(condition).then(data => {
-      data.data.result.forEach((article, index) => {
+async function loadAllLinkData() {
+  obj.linkArr = new Array<Link>();
+  const condition = new Condition(null, null, null);
+  condition.pageSize = 100000;
+  condition.otherUid = auth.getAuthUserInfo.userUid;
+  if (!condition.otherUid) {
+    window.$message?.error('必须要登录才能获取到友情链接信息');
+    return;
+  }
+
+  await fetchLinkByCondition(condition).then(data => {
+    Promise.all(
+      data.data.result.map(link => {
+        obj.linkArr.push(link);
+        return true;
+      })
+    );
+  });
+}
+
+async function loadAllArticleData() {
+  obj.articleArr = new Array<Article>();
+  const condition = new Condition(null, null, null);
+  condition.pageSize = 100000;
+  condition.otherUid = auth.getAuthUserInfo.userUid;
+  if (!condition.otherUid) {
+    window.$message?.error('必须要登录才能获取到友情链接信息');
+    return;
+  }
+
+  await fetchArticleByCondition(condition).then(data => {
+    Promise.all(
+      data.data.result.map(article => {
         obj.articleArr.push(article);
-        if (index === data.data.result.length - 1) {
-          resolve(1);
-        }
-      });
-    });
+        return true;
+      })
+    );
   });
-};
+}
 
-const packageLinkNode = () => {
-  return new Promise(resolve => {
-    // 封装node节点信息
-    // 友情链接
-    obj.linkArr.forEach((link, index) => {
+async function packageLinkNode() {
+  // 封装node节点信息
+  // 友情链接
+  await Promise.all(
+    obj.linkArr.map(link => {
       obj.graphNodes.push({
         id: link.uid as string,
         name: link.linkTitle as string,
@@ -164,77 +162,78 @@ const packageLinkNode = () => {
         x: getRandomCoordinateX(),
         y: getRandomCoordinateY(),
         value: link.linkUrl as string,
-        category: link.categoryUid as string
+        category: link.categoryName as string,
+        label: {
+          show: true
+        }
       });
-      if (index === obj.linkArr.length - 1) {
-        resolve(1);
-      }
-    });
-  });
-};
 
-const packageArticleNode = () => {
-  return new Promise(resolve => {
-    // 文章
-    obj.articleArr.forEach((article, articleIndex) => {
+      return true;
+    })
+  );
+}
+
+async function packageArticleNode() {
+  // 文章
+  await Promise.all(
+    obj.articleArr.map(async article => {
       // 因为每篇文章的类别会存在多个，使用,分割开的
-      let split: Array<string> = article.categoryUids?.split(',');
+      let split: Array<string> = article.categoryNames?.split(',');
       if (!split) {
         split = new Array<string>();
       }
-      split.forEach((articleCategory, index) => {
-        obj.graphNodes.push({
-          id: article.uid as string,
-          name: article.title as string,
-          symbolSize: calculateSymbolSizeByCreateTime(article.createTime as string),
-          x: getRandomCoordinateX(),
-          y: getRandomCoordinateY(),
-          value: article.title as string,
-          category: articleCategory as string
-        });
+      await Promise.all(
+        split.map(articleCategory => {
+          obj.graphNodes.push({
+            id: (article.uid as string) + articleCategory,
+            name: article.title as string,
+            symbolSize: calculateSymbolSizeByCreateTime(article.createTime as string),
+            x: getRandomCoordinateX(),
+            y: getRandomCoordinateY(),
+            value: article.title as string,
+            category: articleCategory as string,
+            label: {
+              show: true
+            }
+          });
+          return true;
+        })
+      );
 
-        if (articleIndex === obj.articleArr.length - 1 && index === split.length - 1) {
-          resolve(1);
-        }
-      });
-    });
-  });
-};
+      return true;
+    })
+  );
+}
 
-const rePackageGraph = () => {
-  return new Promise(resolve => {
-    // 加载所有数据
-    Promise.all([loadAllCategoryData(), loadAllArticleData(), loadAllLinkData()]).then(value => {
-      // 封装关系节点信息
-      Promise.all([packageLinkNode(), packageArticleNode()]).then(data => {
-        // 修改节点的大小
-        // 建立关系
-        obj.graphCategories.forEach((graphCategory, categoryIndex) => {
-          obj.graphNodes
-            .filter(graphNode => graphCategory.uid === graphNode.id)
-            .forEach((graphNode, index) => {
-              obj.graphNodes
-                .filter(node => graphCategory.uid === node.category)
-                .forEach(node => {
-                  graphNode.symbolSize = graphNode.symbolSize === undefined ? 10 : graphNode.symbolSize + 10;
-                  obj.graphLinks.push({ source: graphCategory.uid, target: node.id });
-                  if (categoryIndex === obj.graphCategories.length - 1) {
-                    setTimeout(() => {
-                      obj.graphNodes.forEach(node => {
-                        node.label = {
-                          show: true
-                        };
-                      });
-                      resolve(1);
-                    }, 1500);
-                  }
-                });
-            });
-        });
-      });
-    });
-  });
-};
+async function rePackageGraph() {
+  await loadAllCategoryData();
+  await loadAllLinkData();
+  await loadAllArticleData();
+  await packageArticleNode();
+  await packageLinkNode();
+
+  await Promise.all(
+    obj.graphCategoryNodes.map(graphCategoryNode => {
+      obj.graphNodes.push(graphCategoryNode);
+      return true;
+    })
+  );
+  // 建立关系
+  await Promise.all(
+    obj.graphCategoryNodes.map(async graphCategoryNode => {
+      await Promise.all(
+        obj.graphNodes.map(graphNode => {
+          if (graphCategoryNode.id === graphNode.category) {
+            obj.graphLinks.push({ source: graphCategoryNode.id, target: graphNode.id });
+            graphCategoryNode.symbolSize =
+              graphCategoryNode.symbolSize === undefined ? 10 : graphCategoryNode.symbolSize + 10;
+          }
+          return true;
+        })
+      );
+    })
+  );
+}
 
 const setOption = () => {
   const option = {
@@ -295,7 +294,6 @@ onMounted(() => {
     myChart.hideLoading();
     setOption();
   });
-
   window.onresize = () => {
     myChart.resize();
   };

@@ -12,7 +12,7 @@ export class Link {
   /**
    * 此条友情链接属于哪个分类
    */
-  categoryUid?: string | null;
+  categoryName?: string | null;
 
   /**
    * logo地址

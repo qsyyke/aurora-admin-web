@@ -2,8 +2,8 @@ import { request } from '@/service/request';
 import { Link } from '@/theme/article/link';
 import { Condition } from '@/theme';
 
-export function deleteLinkByUid(linkUid: string) {
-  return request.delete(`/blog/link/${linkUid}`, {});
+export function deleteLinkByUid(linkUid: string, msg: string) {
+  return request.put(`/blog/link/delete`, { uid: linkUid, msg }, {});
 }
 
 export function insertLinkInfo(link: Link) {
@@ -20,4 +20,8 @@ export function fetchLinkByUid(linkUid: string) {
 
 export function updateLink(link: Link) {
   return request.put('/blog/link', link);
+}
+
+export function updateLinkPublishStatus(msg: string, publish: boolean, linkUid: string) {
+  return request.put('/blog/link/publish', { uid: linkUid, msg, publish });
 }
