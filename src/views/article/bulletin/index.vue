@@ -1,9 +1,5 @@
 <template></template>
 
-<script>
-export default {
-  name: 'Index'
-};
-</script>
+<script lang="ts"></script>
 
 <style scoped></style>
